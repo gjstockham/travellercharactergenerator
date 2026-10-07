@@ -1478,8 +1478,12 @@ t.musterOut = function () {
         looking = s[t.service].canMuster(t.musterStrategy) ||
                   t.musterStrategy == 'split';
     }
+    // Only a ship/TAS hunt should switch mustering to cash once found;
+    // hunt=skill sets t.found before mustering out.
+    var huntFound = t.found &&
+        (t.hunt == 'ship' || t.hunt == 'TAS' || t.hunt == 'special');
     for (var i = 1, limit = musterRolls; i <= limit; i++) {
-        if (cashUsed < maxCash && (!looking || t.found || found ||
+        if (cashUsed < maxCash && (!looking || huntFound || found ||
             (t.musterStrategy == 'split' && (i % 2) == 1))) {
             var cash = s[t.service].musterCash[roll(1) + cashDM]
             t.credits += cash;
@@ -1494,6 +1498,8 @@ t.musterOut = function () {
             } else if (t.hunt == 'TAS') {
                 t.found = t.TAS;
             }
+            huntFound = t.found &&
+                (t.hunt == 'ship' || t.hunt == 'TAS' || t.hunt == 'special');
             if (t.musterStrategy == 'special') {
                 found = t.ship | t.TAS;
             } else if (t.musterStrategy == 'ship') {
