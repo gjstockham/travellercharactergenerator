@@ -30,7 +30,9 @@
 //     TAS - don't roll for cash until Travellers' is acquired if possible
 //     special - combination of above
 //     split - alternate cash and material benefits rolls (until mmaximum
-//             number of cash rolls have been taken).
+//             number of cash rolls have been taken). This is the default.
+//     cash - take all cash rolls first (the old default; characters with
+//            three or fewer rolls never roll on the benefits table).
 //
 // maxcash=
 //     The maximum number of cash rolls to make, if not combined with
@@ -936,7 +938,6 @@ s.merchants = {
                 break;
             default:
                 if (this.benefits.indexOf('Free Trader') > -1) {
-                    this.mortgages += 1;
                     if (this.mortgage > 0) {
                         this.mortgage -= 10;
                         this.verboseHistory('10 years of mortgage paid off');
@@ -1447,6 +1448,13 @@ t.musterOut = function () {
     var looking = false;
     var found = false;
     t.musterStrategy = t.urlParam('muster');
+    if (t.musterStrategy == '') {
+        // Taking all cash first starves short careers of benefit rolls
+        // (a 3-term Scout never rolls for a Scout Ship), so alternate.
+        t.musterStrategy = 'split';
+    } else if (t.musterStrategy == 'cash') {
+        t.musterStrategy = '';
+    }
     if (t.urlParam('maxcash') !== '') {
         maxCash = t.urlParam('maxcash');
         if (maxCash > 3) {
